@@ -1,1 +1,3 @@
-from .mapping import Client, Collection, Document
+from .client import Client
+from .collection import Collection
+from .document import Document

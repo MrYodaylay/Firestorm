@@ -1,39 +1,43 @@
 # Firestorm
-Firestorm is an object-relational mapping (ORM) that allows easy, Pythonic access to Google Cloud Firestore. There are 
-a number of similar projects on Github and PyPi, but I chose to write my own ORM for the experience. The code is likely
- of low quality, and limited features are included. However, if you believe this project would suit your needs, you are 
- free to use it. I will probably implement more features (and write some documentation) in the future. 
+Firestorm is an object-relational mapping (ORM) for Google's NoSQL database, Cloud Firestore. I wrote this library
+because I did not like the official Python client from Google, and to gain experience in Python. There are many
+similar libraries available on PyPi, which may be more suited to your project, and I encourage you to search for them,
+as they are likely to be higher quality or have more features. You are free to use this library in your personal 
+projects without restrictions (MIT License).
+
+
 
 ### Requirements
 ```
-google-cloud-firestore==1.7.0
+google-cloud-firestore==2.3.4
 ```
 
 ### Usage
-```python
-from Firestorm import Client, Collection, Document
+#### Requirements
+```google-cloud-firestore==2.3.4```
+#### Authentication
+There are three main authentication methods:
+* If you're running Firestorm on Google Cloud (e.g. Compute Engine or App Engine), you shouldn't need to authenticate
+* If you're developing locally, and have the GCloud tool installed, you can run: `gcloud auth application-default login`
+* For any other situation, create a service account, download the JSON keyfile, and point to it with an environment
+variable: ```GOOGLE_APPLICATION_CREDENTIALS="/path/to/keyfile.json"```
+#### Example
 
-cli = Client(credential_path='/path/to/service-account/json')
-col = cli.collection('collection_name')
-```
-To create a new document:
 ```python
-doc = col.document()
+import Firestorm
+
+# Create an instance of Client
+db = Firestorm.Client()
+
+# Get an instance of a collection. Will be created if not present on the server
+coll = db.collection("apple")
+
+# Get an instance of a document. Will be created if not present on the server
+doc = coll.document("alice")
+
+# Use the document instance like a dictionary
+doc["friend"] = "bob"
+
+# Submit to server
+doc.save()
 ```
-A document is loaded from the database if the document_id is present, or a new document is created if it is not present.
-```python
-with col.document('document_id') as doc:
-    doc.Name = 'John'
-    doc.Email = 'john@exmaple.com'
-```
-Later, the document can be recovered and the variables accessed:
-```python
-with col.document('document_id') as doc:
-    print(doc.Name)
-    print(doc.Email)
-# Expected output:
-# John
-# john@example.com
-```
-If you do not want to use the with statement, you must call the `save()` method on the document for the document to be 
-pushed to the database.
